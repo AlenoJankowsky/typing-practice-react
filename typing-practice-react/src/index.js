@@ -33,44 +33,33 @@ class ExtendesStatsContainer extends React.Component {
 
 
 class TypingContainer extends React.Component {
-//   const [text, setText] = React.useState("");
-//   const fetchText = async () => {
-//     const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=100'
-//   //let amountOfWordsWanted = document.getElementById('amount-of-words').value;pp.com/word?number=' + 8;
-//     const response = await fetch(fetchUrl);
-//     const { text } = await response.text();
-//     setText(text);
-//   };
-constructor(props) {
-  super(props);
-}
 
-async fetchText() {
-  const amountOfWords = document.getElementById('amount-of-words').value;
-  const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=' + amountOfWords
-  const response = await fetch(fetchUrl);
-  const text = await response.text();
-  const textParagraph = document.getElementById('text');
-  textParagraph.innerHTML = text.replaceAll(",", " ")
-                                .replaceAll("[", "")
-                                .replaceAll("]", "")
-                                .replaceAll('"', "");
-}
+  async fetchText() {
+    const amountOfWords = document.getElementById('amount-of-words').value;
+    const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=' + amountOfWords
+    const response = await fetch(fetchUrl);
+    const text = await response.text();
+    const textParagraph = document.getElementById('text');
+    textParagraph.innerHTML = text.replaceAll(",", " ")
+                                  .replaceAll("[", "")
+                                  .replaceAll("]", "")
+                                  .replaceAll('"', "");
+  }
 
-render() {
+  render() {
     return (
-        <div className="typing-container">
-          <p className="typing-container__headline">Typing</p>
-          <button className="typing-container__reset-button" id="reset-button">Reset</button>
-          <div className="typing-container__typing-area">
-            <form>
-              <p className="typing-container__text-length">Text-length:</p>
-              <input type="number" id="amount-of-words" className="typing-container__input-for-amount-of-words-in-text"></input>
-              <input onClick={this.fetchText} type="button" className="typing-area__generate-text-button" id="generate-text-button" value="Generate New Text"></input>
-            </form>
-            <p id="text" className="typing-area__text"></p>
-          </div>
+      <div className="typing-container">
+        <p className="typing-container__headline">Typing</p>
+        <button className="typing-container__reset-button" id="reset-button">Reset</button>
+        <div className="typing-container__typing-area">
+          <form>
+            <p className="typing-container__text-length">Text-length:</p>
+            <input type="number" id="amount-of-words" className="typing-container__input-for-amount-of-words-in-text"></input>
+            <input onClick={this.fetchText} type="button" className="typing-area__generate-text-button" id="generate-text-button" value="Generate New Text"></input>
+          </form>
+          <p id="text" className="typing-area__text"></p>
         </div>
+      </div>
     );
   };
 };

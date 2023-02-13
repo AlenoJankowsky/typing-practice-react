@@ -46,7 +46,8 @@ constructor(props) {
 }
 
 async fetchText() {
-  const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=100'
+  const amountOfWords = document.getElementById('amount-of-words').value;
+  const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=' + amountOfWords
   const response = await fetch(fetchUrl);
   const text = await response.text();
   const textParagraph = document.getElementById('text');

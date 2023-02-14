@@ -1,18 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import {displayStats, displayTodayStats, displayTotalStats} from './displayStats.js'
+import {parseLocalStorage} from './localStorageHandler.js'
+
+let localStorage = window.localStorage;
+localStorage = parseLocalStorage(localStorage);
 
 class StatsContainer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      userMistakesCount: 0,
+      userKeyTypeCount: 0,
+      seconds: 0,
+    };
+  }
+  
   render() {
+    const statsText = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+    const todayStatsText = displayTodayStats();
+    const totalStatsText = displayTotalStats();
+    const secondsStatsText = `Seconds ${this.state.seconds}`;
     return (
       <div className="stats-container">
         <p className="stats-container__headline">Stats</p>
         <p className="stats-container__last-set-headline">Last Set</p>
-        <p className="stats-container__time-text" id="last-set-stats-time-text"></p><p className="stats-container__text" id="last-set-stats-text"></p>
+        <p className="stats-container__time-text" id="last-set-stats-time-text">{secondsStatsText}</p>
+        <p className="stats-container__text" id="last-set-stats-text">{statsText}</p>
         <p className="stats-container__today-headline">Today</p>
-        <p className="stats-container__today-text" id="today-stats-text"></p>
+        <p className="stats-container__today-text" id="today-stats-text">{todayStatsText}</p>
         <p className="stats-container__total-headline">Total</p>
-        <p className="stats-container__total-text" id="total-stats-text"></p>
+        <p className="stats-container__total-text" id="total-stats-text">{totalStatsText}</p>
         <button id="show-extended-stats" className="stats-container__more-stats-button">More Stats</button>
         <button id="delete-today-stats" className="stats-container__delete-today-stats">DELETE TODAY STATS</button>
         <button id="delete-total-stats" className="stats-container__delete-total-stats">DELETE TOTAL STATS</button>
@@ -31,9 +50,7 @@ class ExtendesStatsContainer extends React.Component {
   };
 }
 
-
 class TypingContainer extends React.Component {
-
   async fetchText() {
     const amountOfWords = document.getElementById('amount-of-words').value;
     const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=' + amountOfWords

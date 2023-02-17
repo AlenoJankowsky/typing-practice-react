@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import {displayStats, displayTodayStats, displayTotalStats} from './displayStats.js'
-import {parseLocalStorage} from './localStorageHandler.js'
+import {displayStats, displayTodayStats, displayTotalStats} from './displayStats.js';
+import {parseLocalStorage} from './localStorageHandler.js';
+import {incrementSeconds} from './timeHandler.js';
+import {handleKeyDownEvent} from './handleKeyDownEvent.js';
+import {generateFinalText} from './generateFinalText';
 
 let localStorage = window.localStorage;
 localStorage = parseLocalStorage(localStorage);
@@ -10,13 +13,104 @@ localStorage = parseLocalStorage(localStorage);
 class StatsContainer extends React.Component {
   constructor(props) {
     super(props);
+    this.statsTextForSeconds = React.createRef();
+    this.todayStatsText = React.createRef();
+    this.totalStatsText = React.createRef();
+    this.lastSetStatsText = React.createRef();
     this.state = {
       userMistakesCount: 0,
       userKeyTypeCount: 0,
       seconds: 0,
+      charIndex: 0,
+      tryCounter: 0,
+      incrementSecondsInterval: null,
     };
+
+    document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.state, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current));
   }
+
+  beginCounting(state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
+    this.incrementSecondsInterval = setInterval(function() {
+      state.seconds = incrementSeconds(state.seconds, statsTextForSeconds, todayStatsText, totalStatsText);
+      let minutes = state.seconds / 60;
+      const charactersPerMinute = state.userKeyTypeCount / minutes;
   
+      if (state.userKeyTypeCount == 0) {
+        lastSetStatsText.innerHTML = 'CPM: 0, Wrong Chars: 0%';
+      }
+      else {
+        lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((state.userMistakesCount * 100 / state.userKeyTypeCount * 100) / 100)}%`;
+      }
+    }, 1000);
+  };
+
+  async keyDownHandler(event, state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
+    const text = document.getElementById('text');
+    const charArray = document.getElementById('text').innerHTML;
+    const userInput = event.code;
+    const userInputIsCorrect = charArray[state.charIndex] == event.code;
+    const isFirstTry = state.tryCounter == 0;
+    const isBeginOfTyping = state.userKeyTypeCount == 0;
+
+    if (isBeginOfTyping) {
+      this.beginCounting(state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText);
+    }
+
+    // keyboardKeysArray.forEach(function(keyBoardKeyEntryInArray) {
+    //   const isTheCorrectlyTypedKey = keyBoardKeyEntryInArray[0] == (event.key).toUpperCase();
+    //   if (isFirstTry && userInputIsCorrect) {
+    //     if (isTheCorrectlyTypedKey) {
+    //       keyBoardKeyEntryInArray[1]++; 
+    //     }
+    //   }
+
+    //   if (isTheCorrectlyTypedKey) {
+    //     keyBoardKeyEntryInArray[2]++;
+    //   }
+    // });
+
+    // extendedStatsString = "";
+    // keyboardKeysArray.forEach(function(keyBoardKeyEntryInArray) {
+    //   let computedValue = Math.round(keyBoardKeyEntryInArray[1] / keyBoardKeyEntryInArray[2] * 100);
+    //   if (keyBoardKeyEntryInArray[1] == 0) {
+    //     computedValue = 0;
+    //   }
+      
+    //   extendedStatsString += `${keyBoardKeyEntryInArray[0]} ${computedValue}%<br>`;
+    // });
+    
+    // extendedStatsText.innerHTML = extendedStatsString;
+
+    if (!userInputIsCorrect) {
+      state.tryCounter ++;
+      state.userMistakesCount ++;
+      localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
+      localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
+    }
+    else {
+      state.tryCounter = 0;
+    }
+
+    if (userInput != 'Space') {
+      state.userKeyTypeCount ++;
+      localStorage.todayCharsTyped = parseInt(localStorage.todayCharsTyped) + 1;
+      localStorage.totalCharsTyped = parseInt(localStorage.totalCharsTyped) + 1;
+    }
+
+    const endOfArrayIsReached = state.charIndex === text.length - 1;
+    if (endOfArrayIsReached) {
+      clearInterval(this.incrementSecondsInterval);
+      charArray = await generateText(paragraphWithText);
+      resetProgress();
+      localStorage.todayAmountOfSets = parseInt(localStorage.todayAmountOfSets) + 1;
+      localStorage.totalAmountOfSets = parseInt(localStorage.totalAmountOfSets) + 1;
+
+      return;
+    }  
+
+    state.charIndex = handleKeyDownEvent(event, text, statsTextForSeconds, todayStatsText, charArray, state.charIndex, state.seconds, state.userKeyTypeCount, state.userMistakesCount, userInputIsCorrect);
+}
+
   render() {
     const statsText = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
     const todayStatsText = displayTodayStats();
@@ -26,18 +120,19 @@ class StatsContainer extends React.Component {
       <div className="stats-container">
         <p className="stats-container__headline">Stats</p>
         <p className="stats-container__last-set-headline">Last Set</p>
-        <p className="stats-container__time-text" id="last-set-stats-time-text">{secondsStatsText}</p>
-        <p className="stats-container__text" id="last-set-stats-text">{statsText}</p>
+        <p className="stats-container__time-text" id="last-set-stats-time-text" ref={this.statsTextForSeconds}>{secondsStatsText}</p>
+        <p className="stats-container__text" id="last-set-stats-text" ref={this.lastSetStatsText}>{statsText}</p>
         <p className="stats-container__today-headline">Today</p>
-        <p className="stats-container__today-text" id="today-stats-text">{todayStatsText}</p>
+        <p className="stats-container__today-text" id="today-stats-text"  ref={this.todayStatsText}>{todayStatsText}</p>
         <p className="stats-container__total-headline">Total</p>
-        <p className="stats-container__total-text" id="total-stats-text">{totalStatsText}</p>
+        <p className="stats-container__total-text" id="total-stats-text" ref={this.totalStatsText}>{totalStatsText}</p>
         <button id="show-extended-stats" className="stats-container__more-stats-button">More Stats</button>
         <button id="delete-today-stats" className="stats-container__delete-today-stats">DELETE TODAY STATS</button>
         <button id="delete-total-stats" className="stats-container__delete-total-stats">DELETE TOTAL STATS</button>
       </div>
     );
   };
+
 }
 
 class ExtendesStatsContainer extends React.Component {
@@ -52,15 +147,7 @@ class ExtendesStatsContainer extends React.Component {
 
 class TypingContainer extends React.Component {
   async fetchText() {
-    const amountOfWords = document.getElementById('amount-of-words').value;
-    const fetchUrl = 'https://random-word-api.herokuapp.com/word?number=' + amountOfWords
-    const response = await fetch(fetchUrl);
-    const text = await response.text();
-    const textParagraph = document.getElementById('text');
-    textParagraph.innerHTML = text.replaceAll(",", " ")
-                                  .replaceAll("[", "")
-                                  .replaceAll("]", "")
-                                  .replaceAll('"', "");
+    const charArray = await generateFinalText(document.getElementById('text'))
   }
 
   render() {
@@ -88,7 +175,7 @@ class Game extends React.Component {
         <StatsContainer/>
         <TypingContainer/>
         <ExtendesStatsContainer/>
-     </>
+      </>
     );
   };
 }

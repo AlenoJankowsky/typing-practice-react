@@ -83,7 +83,7 @@ export function parseLocalStorage(localStorage) {
   return localStorage;
 }
 
-export function resetLocalStorageForTodayStats() {
+export function resetLocalStorageForTodayStats(localStorage) {
   localStorage.todayAmountOfSets = 0;
   localStorage.todayCharsTyped = 0;
   localStorage.todayCPM = 0;
@@ -95,7 +95,7 @@ export function resetLocalStorageForTodayStats() {
   return;
 }
 
-export function resetLocalStorageForTotalStats() {
+export function resetLocalStorageForTotalStats(localStorage) {
   localStorage.totalAmountOfSets = 0;
   localStorage.totalCharsTyped = 0;
   localStorage.totalCPM = 0;

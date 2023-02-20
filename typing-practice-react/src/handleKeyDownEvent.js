@@ -1,10 +1,10 @@
 import {displayParagraphs} from "./displayText.js";
 import {preventSpaceBar} from "./preventDefault.js";
 
-export function handleKeyDownEvent(event, paragraphWithText, statsTextContainer, todayStatsTextContainer, charArray, charIndex, seconds, userKeyTypeCount, userMistakesCount, userInputIsCorrect) {
-  preventSpaceBar(event, text, charIndex);
+export function handleKeyDownEvent(event, text, lastSetStatsText, todayStatsTextContainer, charArray, charIndex, seconds, userKeyTypeCount, userMistakesCount, userInputIsCorrect) {
+  preventSpaceBar(event, charArray, charIndex);
   
-  charIndex = displayParagraphs(userInputIsCorrect, paragraphWithText, charIndex, statsTextContainer, seconds, userMistakesCount, userKeyTypeCount, todayStatsTextContainer);
+  charIndex = displayParagraphs(userInputIsCorrect, text, charIndex, lastSetStatsText, seconds, userMistakesCount, userKeyTypeCount, todayStatsTextContainer);
 
   return charIndex;
 }

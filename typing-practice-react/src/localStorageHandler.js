@@ -82,3 +82,27 @@ export function parseLocalStorage(localStorage) {
 
   return localStorage;
 }
+
+export function resetLocalStorageForTodayStats() {
+  localStorage.todayAmountOfSets = 0;
+  localStorage.todayCharsTyped = 0;
+  localStorage.todayCPM = 0;
+  localStorage.todayTotalSeconds = 0;
+  localStorage.todayMistypes = 0;
+
+  location.reload();
+
+  return;
+}
+
+export function resetLocalStorageForTotalStats() {
+  localStorage.totalAmountOfSets = 0;
+  localStorage.totalCharsTyped = 0;
+  localStorage.totalCPM = 0;
+  localStorage.totalTotalSeconds = 0;
+  localStorage.totalMistypes = 0;
+
+  location.reload();
+
+  return;
+}

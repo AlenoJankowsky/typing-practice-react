@@ -35,51 +35,52 @@ class Game extends React.Component {
     };
   }
 
-  beginCounting(state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
-    this.incrementSecondsInterval = setInterval(function() {
-      state.seconds = incrementSeconds(state.seconds, statsTextForSeconds, todayStatsText, totalStatsText);
-      let minutes = state.seconds / 60;
-      const charactersPerMinute = state.userKeyTypeCount / minutes;
+  beginCounting(statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
+    setInterval(() => {
+      this.setState({seconds: incrementSeconds(this.state.seconds, statsTextForSeconds, todayStatsText, totalStatsText)})
+
+      let minutes = this.state.seconds / 60;
+      const charactersPerMinute = this.state.userKeyTypeCount / minutes;
   
-      if (state.userKeyTypeCount == 0) {
+      if (this.state.userKeyTypeCount == 0) {
         lastSetStatsText.innerHTML = 'CPM: 0, Wrong Chars: 0%';
       }
       else {
-        lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((state.userMistakesCount * 100 / state.userKeyTypeCount * 100) / 100)}%`;
+        lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((this.state.userMistakesCount * 100 / this.state.userKeyTypeCount * 100) / 100)}%`;
       }
     }, 1000);
   };
 
-  async fetchText(state) {
+  async fetchText() {
     const text = document.getElementById('text');
-    state.charArray = await generateFinalText(text);
+    this.setState({charArray : await generateFinalText(text)});
 
-    if (state.generateTextButtonIsClicked) {
+    if (this.state.generateTextButtonIsClicked) {
       document.removeEventListener('keydown', this.keyDownHandler);
-      resetProgress(state, text, this.lastSetStatsText.current, this.todayStatsText.current);
-      clearInterval(state.incrementSecondsInterval);
+      resetProgress(text, this.lastSetStatsText.current, this.todayStatsText.current, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, this.state.amountOfSets);
+      clearInterval(this.state.incrementSecondsInterval);
     }
   
-    text.innerHTML = markCurrentChar(text, state.charIndex);
+    text.innerHTML = markCurrentChar(text, this.state.charIndex);
     document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.state, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current));
   
-    state.generateTextButtonIsClicked = true;
+    this.setState({generateTextButtonIsClicked: true});
   }
 
-  async keyDownHandler(event, state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
+  async keyDownHandler(event, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
     const text = document.getElementById('text');
     const extendedStatsText = document.getElementById('extended-stats-text');
     let charArray = text.innerText;
     const userInput = event.key;
-    const userInputIsCorrect = charArray[state.charIndex] === userInput;
-    const isFirstTry = state.tryCounter == 0;
-    const isBeginOfTyping = state.userKeyTypeCount == 0;
+    const userInputIsCorrect = charArray[this.state.charIndex] === userInput;
+    const isFirstTry = this.state.tryCounter == 0;
+    const isBeginOfTyping = this.state.userKeyTypeCount == 0;
     
     if (isBeginOfTyping) {
-      this.beginCounting(state, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText);
+      this.beginCounting(statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText);
     }
 
-    if (state.generateTextButtonIsClicked) {
+    if (this.state.generateTextButtonIsClicked) {
       keyboardKeysArray.forEach(function(keyBoardKeyEntryInArray) {
         const isTheCorrectlyTypedKey = keyBoardKeyEntryInArray[0] == (event.key).toUpperCase();
         if (isFirstTry && userInputIsCorrect) {
@@ -93,45 +94,45 @@ class Game extends React.Component {
         }
       });
       
-      state.extendedStatsString = "";
-      keyboardKeysArray.forEach(function(keyBoardKeyEntryInArray) {
+      this.setState({extendedStatsString: ""});
+      keyboardKeysArray.forEach((keyBoardKeyEntryInArray) => {
         let computedValue = Math.round(keyBoardKeyEntryInArray[1] / keyBoardKeyEntryInArray[2] * 100);
         if (keyBoardKeyEntryInArray[1] == 0) {
           computedValue = 0;
         }
         
-        state.extendedStatsString += `${keyBoardKeyEntryInArray[0]} ${computedValue}%<br>`;
+        this.setState({extendedStatsString: this.state.extendedStatsString + `${keyBoardKeyEntryInArray[0]} ${computedValue}%<br>`});
       });
       
-      extendedStatsText.innerHTML = state.extendedStatsString;
+      extendedStatsText.innerHTML = this.state.extendedStatsString;
   
       if (!userInputIsCorrect) {
-        state.tryCounter ++;
-        state.userMistakesCount ++;
+        this.setState({tryCounter: this.state.tryCounter + 1});
+        this.setState({userMistakesCount: this.state.userMistakesCount + 1});
         localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
         localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
       }
       else {
-        state.tryCounter = 0;
+        this.setState({tryCounter: 0});
       }
   
       if (userInput != 'Space') {
-        state.userKeyTypeCount ++;
+        this.setState({userKeyTypeCount: this.state.userKeyTypeCount + 1});
         localStorage.todayCharsTyped = parseInt(localStorage.todayCharsTyped) + 1;
         localStorage.totalCharsTyped = parseInt(localStorage.totalCharsTyped) + 1;
       }
-      const endOfArrayIsReached = state.charIndex === charArray.length - 1;
+      const endOfArrayIsReached = this.state.charIndex === charArray.length - 1;
       if (endOfArrayIsReached) {
         clearInterval(this.incrementSecondsInterval);
         charArray = await generateFinalText(text);
-        resetProgress(state, text, this.lastSetStatsText.current, this.todayStatsText.current);
+        resetProgress(text, this.lastSetStatsText.current, this.todayStatsText.current, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, this.state.amountOfSets);
         localStorage.todayAmountOfSets = parseInt(localStorage.todayAmountOfSets) + 1;
         localStorage.totalAmountOfSets = parseInt(localStorage.totalAmountOfSets) + 1;
   
         return;
       }  
   
-      state.charIndex = handleKeyDownEvent(event, text, lastSetStatsText, todayStatsText, charArray, state.charIndex, state.seconds, state.userKeyTypeCount, state.userMistakesCount, userInputIsCorrect);
+      this.setState({charIndex: handleKeyDownEvent(event, text, lastSetStatsText, todayStatsText, charArray, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, userInputIsCorrect)});
     }
 }
   render() {
@@ -152,8 +153,8 @@ class Game extends React.Component {
           <p className="stats-container__total-headline">Total</p>
           <p className="stats-container__total-text" id="total-stats-text" ref={this.totalStatsText}>{totalStatsText}</p>
           <button id="show-extended-stats" onClick={() => {toggleExtendedStats(document.getElementById('extended-stats-container'))}} className="stats-container__more-stats-button">More Stats</button>
-          <button id="delete-today-stats" onClick={resetLocalStorageForTodayStats} className="stats-container__delete-today-stats">DELETE TODAY STATS</button>
-          <button id="delete-total-stats" onClick={resetLocalStorageForTotalStats} className="stats-container__delete-total-stats">DELETE TOTAL STATS</button>
+          <button id="delete-today-stats" onClick={() => {resetLocalStorageForTodayStats(localStorage)}} className="stats-container__delete-today-stats">DELETE TODAY STATS</button>
+          <button id="delete-total-stats" onClick={() => {resetLocalStorageForTotalStats(localStorage)}} className="stats-container__delete-total-stats">DELETE TOTAL STATS</button>
         </div>
         <div className="typing-container">
           <p className="typing-container__headline">Typing</p>

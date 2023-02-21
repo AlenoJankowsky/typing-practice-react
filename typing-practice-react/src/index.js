@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -8,7 +7,6 @@ import {incrementSeconds} from './timeHandler.js';
 import {handleKeyDownEvent} from './handleKeyDownEvent.js';
 import {generateFinalText} from './generateFinalText.js';
 import {markCurrentChar} from './displayText.js'
-import {resetProgress} from './resetProgress.js'
 
 let localStorage = window.localStorage;
 localStorage = parseLocalStorage(localStorage);
@@ -22,6 +20,8 @@ class Game extends React.Component {
     this.todayStatsText = React.createRef();
     this.totalStatsText = React.createRef();
     this.lastSetStatsText = React.createRef();
+    this.extendedStatsText = React.createRef();
+    this.resetButton = React.createRef();
     this.state = {
       userMistakesCount: 0,
       userKeyTypeCount: 0,
@@ -31,12 +31,26 @@ class Game extends React.Component {
       amountOfSets: 0,
       incrementSecondsInterval: null,
       generateTextButtonIsClicked: false,
-      extendedStatsString: "",
     };
   }
 
+  resetProgress = () =>{
+    if (this.state.generateTextButtonIsClicked) {
+      this.setState({
+        charIndex: 0,
+        seconds: 0,
+        userKeyTypeCount: 0,
+        userMistakesCount: 0,
+      },() => {
+        text.innerHTML = markCurrentChar(text, this.state.charIndex);
+        this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+        this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+      }
+    )}
+  }
+    
   beginCounting(statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
-    setInterval(() => {
+    this.setState({incrementSecondsInterval: setInterval(() => {
       this.setState({seconds: incrementSeconds(this.state.seconds, statsTextForSeconds, todayStatsText, totalStatsText)})
 
       let minutes = this.state.seconds / 60;
@@ -48,28 +62,38 @@ class Game extends React.Component {
       else {
         lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((this.state.userMistakesCount * 100 / this.state.userKeyTypeCount * 100) / 100)}%`;
       }
-    }, 1000);
+    }, 1000)});
   };
 
   async fetchText() {
     const text = document.getElementById('text');
-    this.setState({charArray : await generateFinalText(text)});
+    this.setState({charArray: await generateFinalText(text)});
 
     if (this.state.generateTextButtonIsClicked) {
       document.removeEventListener('keydown', this.keyDownHandler);
-      resetProgress(text, this.lastSetStatsText.current, this.todayStatsText.current, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, this.state.amountOfSets);
-      clearInterval(this.state.incrementSecondsInterval);
+      this.setState({
+        charIndex: 0,
+        seconds: 0,
+        userKeyTypeCount: 0,
+        userMistakesCount: 0,
+      },() => {
+        text.innerHTML = markCurrentChar(text, this.state.charIndex);
+        this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+        this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+
+        clearInterval(this.state.incrementSecondsInterval);
+      });
     }
-  
-    text.innerHTML = markCurrentChar(text, this.state.charIndex);
-    document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.state, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current));
-  
+    else {
+      text.innerHTML = markCurrentChar(text, this.state.charIndex);
+      document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current));
+    }
+
     this.setState({generateTextButtonIsClicked: true});
   }
 
   async keyDownHandler(event, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
     const text = document.getElementById('text');
-    const extendedStatsText = document.getElementById('extended-stats-text');
     let charArray = text.innerText;
     const userInput = event.key;
     const userInputIsCorrect = charArray[this.state.charIndex] === userInput;
@@ -81,37 +105,34 @@ class Game extends React.Component {
     }
 
     if (this.state.generateTextButtonIsClicked) {
-      keyboardKeysArray.forEach(function(keyBoardKeyEntryInArray) {
+      keyboardKeysArray.forEach((keyBoardKeyEntryInArray) => {
         const isTheCorrectlyTypedKey = keyBoardKeyEntryInArray[0] == (event.key).toUpperCase();
         if (isFirstTry && userInputIsCorrect) {
           if (isTheCorrectlyTypedKey) {
             keyBoardKeyEntryInArray[1]++; 
           }
         }
-  
+
         if (isTheCorrectlyTypedKey) {
           keyBoardKeyEntryInArray[2]++;
         }
       });
-      
-      this.setState({extendedStatsString: ""});
+
+      let extendedStatsString = "";
       keyboardKeysArray.forEach((keyBoardKeyEntryInArray) => {
-        let computedValue = Math.round(keyBoardKeyEntryInArray[1] / keyBoardKeyEntryInArray[2] * 100);
-        if (keyBoardKeyEntryInArray[1] == 0) {
-          computedValue = 0;
-        }
-        
-        this.setState({extendedStatsString: this.state.extendedStatsString + `${keyBoardKeyEntryInArray[0]} ${computedValue}%<br>`});
+        extendedStatsString += `${keyBoardKeyEntryInArray[0]} ${keyBoardKeyEntryInArray[1]}%`;
       });
       
-      extendedStatsText.innerHTML = this.state.extendedStatsString;
-  
       if (!userInputIsCorrect) {
-        this.setState({tryCounter: this.state.tryCounter + 1});
-        this.setState({userMistakesCount: this.state.userMistakesCount + 1});
-        localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
-        localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
+        this.setState({
+          tryCounter: this.state.tryCounter + 1,
+          userMistakesCount: this.state.userMistakesCount + 1
+        }, () => {
+          localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
+          localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
+        });
       }
+        
       else {
         this.setState({tryCounter: 0});
       }
@@ -123,19 +144,40 @@ class Game extends React.Component {
       }
       const endOfArrayIsReached = this.state.charIndex === charArray.length - 1;
       if (endOfArrayIsReached) {
-        clearInterval(this.incrementSecondsInterval);
+        clearInterval(this.state.incrementSecondsInterval);
         charArray = await generateFinalText(text);
-        resetProgress(text, this.lastSetStatsText.current, this.todayStatsText.current, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, this.state.amountOfSets);
-        localStorage.todayAmountOfSets = parseInt(localStorage.todayAmountOfSets) + 1;
-        localStorage.totalAmountOfSets = parseInt(localStorage.totalAmountOfSets) + 1;
-  
+        this.setState({
+          charIndex: 0,
+          secsonds: 0,
+          userKeyTypeCount: 0,
+          userMistakesCount: 0,
+        }, () => {
+          text.innerHTML = markCurrentChar(text, this.state.charIndex);
+          this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+          this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+
+          localStorage.todayAmountOfSets = parseInt(localStorage.todayAmountOfSets) + 1;
+          localStorage.totalAmountOfSets = parseInt(localStorage.totalAmountOfSets) + 1;
+        });
+
         return;
       }  
-  
+
       this.setState({charIndex: handleKeyDownEvent(event, text, lastSetStatsText, todayStatsText, charArray, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, userInputIsCorrect)});
     }
 }
   render() {
+    let extendedStatsString = "";
+    keyboardKeysArray.forEach((keyBoardKeyEntryInArray) => {
+      let computedValue = Math.round(keyBoardKeyEntryInArray[1] / keyBoardKeyEntryInArray[2] * 100);
+      if (keyBoardKeyEntryInArray[1] == 0) {
+        computedValue = 0;
+      }
+      
+      extendedStatsString += `(${keyBoardKeyEntryInArray[0]} ${computedValue}% ) `;
+    });
+
+    localStorage = parseLocalStorage(localStorage);
     const statsText = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
     const todayStatsText = displayTodayStats();
     const totalStatsText = displayTotalStats();
@@ -158,7 +200,7 @@ class Game extends React.Component {
         </div>
         <div className="typing-container">
           <p className="typing-container__headline">Typing</p>
-          <button className="typing-container__reset-button" id="reset-button">Reset</button>
+          <button className="typing-container__reset-button" id="reset-button" onClick={this.resetProgress}>Reset</button>
           <div className="typing-container__typing-area">
             <form>
               <p className="typing-container__text-length">Text-length:</p>
@@ -169,7 +211,7 @@ class Game extends React.Component {
           </div>
         </div>
         <div id="extended-stats-container" className="extended-stats-container">
-          <p id="extended-stats-text" className="extended-stats-container__text"></p>
+          <p id="extended-stats-text" className="extended-stats-container__text" ref={this.extendedStatsText}>{extendedStatsString}</p>
         </div>
       </>
     );

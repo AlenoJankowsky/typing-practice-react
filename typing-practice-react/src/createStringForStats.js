@@ -10,11 +10,11 @@ export function createStringForStats(userMistakesCount, userKeyTypeCount, second
 }
 
 export function createStringForTodayStats() {
-  return putTogetherStringsForStats('todayTotalSeconds', 'todayCharsTyped', 'todayMistypes', 'todayAmountOfSets')
+  return generateStats('todayTotalSeconds', 'todayCharsTyped', 'todayMistypes', 'todayAmountOfSets')
 }
 
 export function createStringForTotalStats() {
-  return putTogetherStringsForStats('totalTotalSeconds', 'totalCharsTyped', 'totalMistypes', 'totalAmountOfSets');
+  return generateStats('totalTotalSeconds', 'totalCharsTyped', 'totalMistypes', 'totalAmountOfSets');
 }
 
 export function toggleExtendedStats(extendedStatsContainer) {
@@ -26,7 +26,7 @@ export function toggleExtendedStats(extendedStatsContainer) {
   }
 }
 
-function putTogetherStringsForStats(stringForSeconds, stringForCharsTyped, stringForMistypes, stringForAmountOfSets) {
+function generateStats(stringForSeconds, stringForCharsTyped, stringForMistypes, stringForAmountOfSets) {
   let minutes = parseInt(localStorage.getItem(stringForSeconds)) / 60;
   let cpmComputation = parseInt(localStorage.getItem(stringForCharsTyped)) / minutes;
   let mistakeRatio = parseFloat(localStorage.getItem(stringForMistypes)) / parseFloat(localStorage.getItem(stringForCharsTyped));

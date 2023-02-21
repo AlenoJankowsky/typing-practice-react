@@ -1,4 +1,4 @@
-export function displayStats(userMistakesCount, userKeyTypeCount, seconds) {
+export function createStringForStats(userMistakesCount, userKeyTypeCount, seconds) {
   if (userMistakesCount == 0 && userKeyTypeCount == 0) {
     return 'CPM: 0 Wrong Chars: 0%';
   }
@@ -9,11 +9,11 @@ export function displayStats(userMistakesCount, userKeyTypeCount, seconds) {
   return `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((userMistakesCount / userKeyTypeCount) * 100)}%`;
 }
 
-export function displayTodayStats() {
+export function createStringForTodayStats() {
   return putTogetherStringsForStats('todayTotalSeconds', 'todayCharsTyped', 'todayMistypes', 'todayAmountOfSets')
 }
 
-export function displayTotalStats() {
+export function createStringForTotalStats() {
   return putTogetherStringsForStats('totalTotalSeconds', 'totalCharsTyped', 'totalMistypes', 'totalAmountOfSets');
 }
 

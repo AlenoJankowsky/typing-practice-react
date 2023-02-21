@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import {displayStats, displayTodayStats, displayTotalStats, toggleExtendedStats} from './displayStats.js';
+import {createStringForStats, displayTodayStats, displayTotalStats, toggleExtendedStats} from './displayStats.js';
 import {parseLocalStorage, resetLocalStorageForTodayStats, resetLocalStorageForTotalStats} from './localStorageHandler.js';
 import {incrementSeconds} from './timeHandler.js';
 import {handleKeyDownEvent} from './handleKeyDownEvent.js';
@@ -53,7 +53,7 @@ class Game extends React.Component {
     this.setState({incrementSecondsInterval: setInterval(() => {
       this.setState({seconds: incrementSeconds(this.state.seconds, statsTextForSeconds, todayStatsText, totalStatsText)})
 
-      let minutes = this.state.seconds / 60;
+      const minutes = this.state.seconds / 60;
       const charactersPerMinute = this.state.userKeyTypeCount / minutes;
   
       if (this.state.userKeyTypeCount == 0) {
@@ -94,7 +94,7 @@ class Game extends React.Component {
 
   async keyDownHandler(event, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
     const text = document.getElementById('text');
-    let charArray = text.innerText;
+    const charArray = text.innerText;
     const userInput = event.key;
     const userInputIsCorrect = charArray[this.state.charIndex] === userInput;
     const isFirstTry = this.state.tryCounter == 0;

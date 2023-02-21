@@ -1,4 +1,4 @@
-import {displayStats, displayTodayStats} from "./displayStats.js";
+import {createStringForStats, createStringForTotalStats} from "./createStringForStats.js";
 
 function createResultParagraphText(text, charIndex, span) {
   const resultParagraphText = text.innerText.substring(0, charIndex) + span.outerHTML + text.innerText.substring(charIndex + 1);
@@ -40,15 +40,15 @@ export function markIncorrectChar(text, charIndex) {
 export function displayParagraphs(userInputIsCorrect, text, charIndex, lastSetStatsText, seconds, userMistakesCount, userKeyTypeCount, todayStatsTextContainer) {
   if (userInputIsCorrect) {
     text.innerHTML = markCurrentChar(text, charIndex + 1);
-    lastSetStatsText.innerHTML = displayStats(userMistakesCount, userKeyTypeCount, seconds);
-    todayStatsTextContainer.innerHTML = displayTodayStats(userKeyTypeCount);
+    lastSetStatsText.innerHTML = createStringForStats(userMistakesCount, userKeyTypeCount, seconds);
+    todayStatsTextContainer.innerHTML = createStringForTotalStats(userKeyTypeCount);
 
     return charIndex += 1;
   }
 
   text.innerHTML = markIncorrectChar(text, charIndex);
-  lastSetStatsText.innerHTML = displayStats(userMistakesCount, userKeyTypeCount, seconds);
-  todayStatsTextContainer.innerHTML = displayTodayStats(userKeyTypeCount);
+  lastSetStatsText.innerHTML = createStringForStats(userMistakesCount, userKeyTypeCount, seconds);
+  todayStatsTextContainer.innerHTML = createStringForTotalStats(userKeyTypeCount);
   
   return charIndex;
 }

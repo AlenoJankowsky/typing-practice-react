@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import {createStringForStats, displayTodayStats, displayTotalStats, toggleExtendedStats} from './displayStats.js';
+import {createStringForStats, createStringForTodayStats, createStringForTotalStats, toggleExtendedStats} from './createStringForStats.js';
 import {parseLocalStorage, resetLocalStorageForTodayStats, resetLocalStorageForTotalStats} from './localStorageHandler.js';
 import {incrementSeconds} from './timeHandler.js';
 import {handleKeyDownEvent} from './handleKeyDownEvent.js';
 import {generateFinalText} from './generateFinalText.js';
-import {markCurrentChar} from './displayText.js'
+import {markCurrentChar} from './createText.js'
 
 let localStorage = window.localStorage;
 localStorage = parseLocalStorage(localStorage);
@@ -43,8 +43,8 @@ class Game extends React.Component {
         userMistakesCount: 0,
       },() => {
         text.innerHTML = markCurrentChar(text, this.state.charIndex);
-        this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
-        this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+        this.lastSetStatsText.current.innerHTML = createStringForStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+        this.todayStatsText.current.innerHTML = createStringForTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
       }
     )}
   }
@@ -78,8 +78,8 @@ class Game extends React.Component {
         userMistakesCount: 0,
       },() => {
         text.innerHTML = markCurrentChar(text, this.state.charIndex);
-        this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
-        this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+        this.lastSetStatsText.current.innerHTML = createStringForStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+        this.todayStatsText.current.innerHTML = createStringForTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
 
         clearInterval(this.state.incrementSecondsInterval);
       });
@@ -153,8 +153,8 @@ class Game extends React.Component {
           userMistakesCount: 0,
         }, () => {
           text.innerHTML = markCurrentChar(text, this.state.charIndex);
-          this.lastSetStatsText.current.innerHTML = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
-          this.todayStatsText.current.innerHTML = displayTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
+          this.lastSetStatsText.current.innerHTML = createStringForStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+          this.todayStatsText.current.innerHTML = createStringForTodayStats(this.state.userKeyTypeCount, this.state.amountOfSets);
 
           localStorage.todayAmountOfSets = parseInt(localStorage.todayAmountOfSets) + 1;
           localStorage.totalAmountOfSets = parseInt(localStorage.totalAmountOfSets) + 1;
@@ -178,9 +178,9 @@ class Game extends React.Component {
     });
 
     localStorage = parseLocalStorage(localStorage);
-    const statsText = displayStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
-    const todayStatsText = displayTodayStats();
-    const totalStatsText = displayTotalStats();
+    const statsText = createStringForStats(this.state.userMistakesCount, this.state.userKeyTypeCount, this.state.seconds);
+    const todayStatsText = createStringForTodayStats();
+    const totalStatsText = createStringForTotalStats();
     const secondsStatsText = `Seconds ${this.state.seconds}`;
 
     return (

@@ -1,4 +1,4 @@
-import {charArrayIntoString} from  "./displayText.js";
+import {charArrayIntoString} from  "./createText.js";
 import {createIterableCharArray} from  "./createIterableCharArray.js"
 
 export async function generateFinalText(paragraphWithText) {

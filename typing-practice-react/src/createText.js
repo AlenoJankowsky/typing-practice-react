@@ -20,8 +20,8 @@ export function charArrayIntoString(textArray) {
 }
 
 export function markCurrentChar(text, charIndex) {
-  let span = document.createElement('span');
-  let textForSpan = document.createTextNode(text.innerText[charIndex]);
+  const span = document.createElement('span');
+  const textForSpan = document.createTextNode(text.innerText[charIndex]);
   span.appendChild(textForSpan);
   span.style.backgroundColor = 'white';
 
@@ -29,8 +29,8 @@ export function markCurrentChar(text, charIndex) {
 }
 
 export function markIncorrectChar(text, charIndex) {
-  let span = document.createElement('span');
-  let textForSpan = document.createTextNode(text.innerText[charIndex]);
+  const span = document.createElement('span');
+  const textForSpan = document.createTextNode(text.innerText[charIndex]);
   span.appendChild(textForSpan);
   span.style.color = 'red';
 

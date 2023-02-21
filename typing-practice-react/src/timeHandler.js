@@ -13,10 +13,10 @@ export function incrementSeconds(seconds, statsTextForSeconds, todayStatsTextCon
 }
 
 export function resetAtMidnight() {
-  let currentDate = new Date();
-  let currentSeconds = currentDate.getSeconds();
-  let currentMinutes = currentDate.getMinutes();
-  let currentHours = currentDate.getHours();
+  const currentDate = new Date();
+  const currentSeconds = currentDate.getSeconds();
+  const currentMinutes = currentDate.getMinutes();
+  const currentHours = currentDate.getHours();
   
   if (currentHours == 0 && currentMinutes == 0 && currentSeconds == 0) {
     resetLocalStorageForTodayStats();

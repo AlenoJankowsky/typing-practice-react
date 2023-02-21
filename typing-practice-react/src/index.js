@@ -94,7 +94,7 @@ class Game extends React.Component {
 
   async keyDownHandler(event, statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText) {
     const text = document.getElementById('text');
-    const charArray = text.innerText;
+    let charArray = text.innerText;
     const userInput = event.key;
     const userInputIsCorrect = charArray[this.state.charIndex] === userInput;
     const isFirstTry = this.state.tryCounter == 0;

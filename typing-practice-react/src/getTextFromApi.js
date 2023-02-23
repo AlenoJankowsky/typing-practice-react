@@ -15,5 +15,6 @@ export async function getTextFromApi() {
                          .replaceAll("[", "")
                          .replaceAll("]", "")
                          .replaceAll('"', "");
+                         
   return resultText;
 }

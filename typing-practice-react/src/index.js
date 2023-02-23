@@ -60,7 +60,8 @@ class Game extends React.Component {
         lastSetStatsText.innerHTML = 'CPM: 0, Wrong Chars: 0%';
       }
       else {
-        lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: ${Math.round((this.state.userMistakesCount * 100 / this.state.userKeyTypeCount * 100) / 100)}%`;
+        lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: 
+                                      ${Math.round((this.state.userMistakesCount * 100 / this.state.userKeyTypeCount * 100) / 100)}%`;
       }
     }, 1000)});
   };
@@ -86,7 +87,8 @@ class Game extends React.Component {
     }
     else {
       text.innerHTML = markCurrentChar(text, this.state.charIndex);
-      document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current));
+      document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current)
+      );
     }
 
     this.setState({generateTextButtonIsClicked: true});
@@ -168,7 +170,12 @@ class Game extends React.Component {
         return;
       }  
 
-      this.setState({charIndex: handleKeyDownEvent(event, text, lastSetStatsText, todayStatsText, charArray, this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, this.state.userMistakesCount, userInputIsCorrect)});
+      this.setState({charIndex: handleKeyDownEvent(
+          event, text, lastSetStatsText, todayStatsText, charArray, 
+          this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, 
+          this.state.userMistakesCount, userInputIsCorrect
+        )
+      });
     }
 }
   render() {

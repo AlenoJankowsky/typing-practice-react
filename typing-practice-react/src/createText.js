@@ -15,7 +15,6 @@ function removeWhitespaces(text) {
 export function charArrayIntoString(textArray) {
   const resultString = textArray.join();
 
-
   return removeWhitespaces(resultString);
 }
 
@@ -37,18 +36,23 @@ export function markIncorrectChar(text, charIndex) {
   return createResultParagraphText(text, charIndex, span);
 }
 
-export function displayParagraphs(userInputIsCorrect, text, charIndex, lastSetStatsText, seconds, userMistakesCount, userKeyTypeCount, todayStatsTextContainer) {
-  if (userInputIsCorrect) {
-    text.innerHTML = markCurrentChar(text, charIndex + 1);
+export function displayParagraphs(
+    userInputIsCorrect, text, charIndex, lastSetStatsText, 
+    seconds, userMistakesCount, userKeyTypeCount, todayStatsTextContainer
+  ) 
+  {
+
+    if (userInputIsCorrect) {
+      text.innerHTML = markCurrentChar(text, charIndex + 1);
+      lastSetStatsText.innerHTML = createStringForStats(userMistakesCount, userKeyTypeCount, seconds);
+      todayStatsTextContainer.innerHTML = createStringForTotalStats(userKeyTypeCount);
+
+      return charIndex += 1;
+    }
+
+    text.innerHTML = markIncorrectChar(text, charIndex);
     lastSetStatsText.innerHTML = createStringForStats(userMistakesCount, userKeyTypeCount, seconds);
     todayStatsTextContainer.innerHTML = createStringForTotalStats(userKeyTypeCount);
-
-    return charIndex += 1;
-  }
-
-  text.innerHTML = markIncorrectChar(text, charIndex);
-  lastSetStatsText.innerHTML = createStringForStats(userMistakesCount, userKeyTypeCount, seconds);
-  todayStatsTextContainer.innerHTML = createStringForTotalStats(userKeyTypeCount);
-  
-  return charIndex;
+    
+    return charIndex;
 }

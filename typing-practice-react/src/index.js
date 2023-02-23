@@ -34,7 +34,7 @@ class Game extends React.Component {
     };
   }
 
-  resetProgress = () =>{
+  resetProgress = () => {
     if (this.state.generateTextButtonIsClicked) {
       this.setState({
         charIndex: 0,
@@ -99,7 +99,7 @@ class Game extends React.Component {
     const userInputIsCorrect = charArray[this.state.charIndex] === userInput;
     const isFirstTry = this.state.tryCounter == 0;
     const isBeginOfTyping = this.state.userKeyTypeCount == 0;
-    
+
     if (isBeginOfTyping) {
       this.beginCounting(statsTextForSeconds, todayStatsText, totalStatsText, lastSetStatsText);
     }
@@ -124,10 +124,10 @@ class Game extends React.Component {
       });
       
       if (!userInputIsCorrect) {
-        this.setState({
-          tryCounter: this.state.tryCounter + 1,
-          userMistakesCount: this.state.userMistakesCount + 1
-        }, () => {
+        this.setState((prevState) => ({
+          tryCounter: prevState.tryCounter + 1,
+          userMistakesCount: prevState.userMistakesCount + 1
+        }), () => {
           localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
           localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
         });
@@ -138,10 +138,15 @@ class Game extends React.Component {
       }
   
       if (userInput != 'Space') {
-        this.setState({userKeyTypeCount: this.state.userKeyTypeCount + 1});
-        localStorage.todayCharsTyped = parseInt(localStorage.todayCharsTyped) + 1;
-        localStorage.totalCharsTyped = parseInt(localStorage.totalCharsTyped) + 1;
+        this.setState(prevState => ({
+          userKeyTypeCount: prevState.userKeyTypeCount + 1
+        }), () => {
+          console.log("lol");
+            localStorage.todayCharsTyped = parseInt(localStorage.todayCharsTyped) + 1;
+            localStorage.totalCharsTyped = parseInt(localStorage.totalCharsTyped) + 1;
+        });
       }
+      
       const endOfArrayIsReached = this.state.charIndex === charArray.length - 1;
       if (endOfArrayIsReached) {
         clearInterval(this.state.incrementSecondsInterval);

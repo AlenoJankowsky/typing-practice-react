@@ -3,8 +3,7 @@ export async function getTextFromApi() {
   let amountOfWords = 0;
   if (document.getElementById('amount-of-words').value < MAX_VALUE) {
     amountOfWords = document.getElementById('amount-of-words').value;
-  }
-  else {
+  } else {
     amountOfWords = MAX_VALUE;
   }
   

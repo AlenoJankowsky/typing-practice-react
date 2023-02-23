@@ -58,8 +58,7 @@ class Game extends React.Component {
   
       if (this.state.userKeyTypeCount == 0) {
         lastSetStatsText.innerHTML = 'CPM: 0, Wrong Chars: 0%';
-      }
-      else {
+      } else {
         lastSetStatsText.innerHTML = `CPM: ${Math.round(charactersPerMinute)} Wrong Chars: 
                                       ${Math.round((this.state.userMistakesCount * 100 / this.state.userKeyTypeCount * 100) / 100)}%`;
       }
@@ -84,10 +83,14 @@ class Game extends React.Component {
 
         clearInterval(this.state.incrementSecondsInterval);
       });
-    }
-    else {
+    } else {
       text.innerHTML = markCurrentChar(text, this.state.charIndex);
-      document.addEventListener('keydown', (event) => this.keyDownHandler(event, this.statsTextForSeconds.current, this.todayStatsText.current, this.totalStatsText.current, this.lastSetStatsText.current)
+      document.addEventListener('keydown', (event) => this.keyDownHandler(
+        event, 
+        this.statsTextForSeconds.current, 
+        this.todayStatsText.current, 
+        this.totalStatsText.current, 
+        this.lastSetStatsText.current)
       );
     }
 
@@ -108,14 +111,12 @@ class Game extends React.Component {
 
     if (this.state.generateTextButtonIsClicked) {
       keyboardKeysArray.forEach((keyBoardKeyEntryInArray) => {
-        const isTheCorrectlyTypedKey = keyBoardKeyEntryInArray[0] == (event.key).toUpperCase();
-        if (isFirstTry && userInputIsCorrect) {
-          if (isTheCorrectlyTypedKey) {
-            keyBoardKeyEntryInArray[1]++; 
-          }
+        const userInputIsValid = keyBoardKeyEntryInArray[0] === (event.key).toUpperCase();
+        if (isFirstTry && userInputIsCorrect && userInputIsValid) {
+          keyBoardKeyEntryInArray[1]++; 
         }
 
-        if (isTheCorrectlyTypedKey) {
+        if (userInputIsValid) {
           keyBoardKeyEntryInArray[2]++;
         }
       });
@@ -133,9 +134,7 @@ class Game extends React.Component {
           localStorage.todayMistypes = parseInt(localStorage.todayMistypes) + 1;
           localStorage.totalMistypes = parseInt(localStorage.totalMistypes) + 1;
         });
-      }
-        
-      else {
+      } else {
         this.setState({tryCounter: 0});
       }
   
@@ -143,7 +142,6 @@ class Game extends React.Component {
         this.setState(prevState => ({
           userKeyTypeCount: prevState.userKeyTypeCount + 1
         }), () => {
-          console.log("lol");
             localStorage.todayCharsTyped = parseInt(localStorage.todayCharsTyped) + 1;
             localStorage.totalCharsTyped = parseInt(localStorage.totalCharsTyped) + 1;
         });
@@ -171,10 +169,17 @@ class Game extends React.Component {
       }  
 
       this.setState({charIndex: handleKeyDownEvent(
-          event, text, lastSetStatsText, todayStatsText, charArray, 
-          this.state.charIndex, this.state.seconds, this.state.userKeyTypeCount, 
-          this.state.userMistakesCount, userInputIsCorrect
-        )
+        event,
+        text,
+        lastSetStatsText,
+        todayStatsText,
+        charArray, 
+        this.state.charIndex,
+        this.state.seconds,
+        this.state.userKeyTypeCount, 
+        this.state.userMistakesCount,
+        userInputIsCorrect
+      )
       });
     }
 }
